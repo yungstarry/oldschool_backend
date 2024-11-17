@@ -17,4 +17,10 @@ class School extends Model
     public function getAssociation(){
         return Association::where('school_id', $this->id)->first();
     }
+
+    public function associations()
+    {
+        return $this->hasMany(Association::class);
+    }
+
 }

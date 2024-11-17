@@ -27,6 +27,9 @@ class Association extends Model
 
         return $association;
     }
-
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
     
 }

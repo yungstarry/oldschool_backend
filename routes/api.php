@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssociationController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\SchoolController;
 use Illuminate\Http\Request;
@@ -14,6 +15,9 @@ Route::get('/schools-names', [SchoolController::class, 'getSchoolNames']);
 
 //store school
 Route::post('/schools', [SchoolController::class, 'store']);
+
+//check association
+Route::post('/check-association', [AssociationController::class, 'checkAssociation']);
 
 
 

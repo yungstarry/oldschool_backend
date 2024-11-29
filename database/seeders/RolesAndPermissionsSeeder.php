@@ -15,19 +15,25 @@ class RolesAndPermissionsSeeder extends Seeder
     public function run(): void
     {
         // Create roles
-        $admin = Role::create(['name' => 'admin']);
-        $groupAdmin = Role::create(['name' => 'group_admin']);
-        $user = Role::create(['name' => 'user']);
+        $admin = Role::firstOrCreate(['name' => 'admin']);
+        $groupAdmin = Role::firstOrCreate(['name' => 'group_admin']);
+        $user = Role::firstOrCreate(['name' => 'user']);
 
         // Create permissions
-        Permission::create(['name' => 'manage_users']);
-        Permission::create(['name' => 'create_school']);
-        Permission::create(['name' => 'delete_school']);
-        Permission::create(['name' => 'check_association']);
+        Permission::create(['name' => 'view profile']);
+        Permission::create(['name' => 'manage group']);
+        Permission::create(['name' => 'remove user']);
+        Permission::create(['name' => 'manage platform']);
 
         // Assign permissions to roles
-        $admin->givePermissionTo(['manage_users', 'create_school', 'delete_school']);
-        $groupAdmin->givePermissionTo(['create_school', 'check_association']);
-        $user->givePermissionTo(['check_association']);
+        $user->givePermissionTo(['view profile']);
+
+        $groupAdmin->givePermissionTo(['view profile', 'manage group', 'remove user']);
+
+        $admin->givePermissionTo(Permission::all());
+
+
     }
+
+
 }

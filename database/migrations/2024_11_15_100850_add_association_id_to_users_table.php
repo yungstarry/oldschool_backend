@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('association_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('school_id')->nullable()->constrained()->onDelete('cascade');
+
 
         });
     }
@@ -25,6 +27,8 @@ return new class extends Migration
     Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['association_id']);
             $table->dropColumn('association_id');
+            $table->dropForeign(['school_id']);
+            $table->dropColumn('school_id');
         });
     }
 };

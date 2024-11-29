@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Association;
 use App\Models\School;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -96,4 +97,39 @@ class AssociationController extends Controller
         ], 200);
     }
       
+
+    //get association members
+
+    public function getAssociationMembers(Request $request){
+        $user = $request->user();
+
+        if(!$user->association_id){
+            return response()->json([
+                'message' => 'User is not part of any association',
+            ], 403);
+        }
+
+        //fetch all users in the same association
+        $users = User::select(
+            'users.id as user_id',
+            'users.first_name',
+            'users.last_name',
+            'users.email',
+            'schools.name as school_name',
+            'schools.faculty as school_faculty',
+            'schools.department as school_department',
+            'schools.graduation_year as school_graduation_year',
+            'associations.name as association_name'
+        )
+        ->join('association_user', 'users.id', '=', 'association_user.user_id')
+        ->join('associations', 'associations.id', '=', 'association_user.association_id')
+        ->join('schools', 'users.school_id', '=', 'schools.id') // Join using users.school_id
+        ->where('association_user.association_id', $user->association_id) // Explicit table name
+        ->get();
+
+        return response()->json([
+            'message' => 'Association members fetched successfully.',
+            'users' => $users,
+        ], 200);
+    }
 }

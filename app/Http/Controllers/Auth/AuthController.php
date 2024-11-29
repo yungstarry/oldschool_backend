@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class AuthController extends Controller
 {
 
-    
+
     public function register(Request $request)
     {
         $validated = Validator::make($request->all(), [
@@ -68,14 +68,19 @@ class AuthController extends Controller
 
         // Link the user to the association
         $user->association_id = $association->id;
+        $user->school_id = $school->id;
         $user->save();
 
         // Attach user to the association via pivot table
         if (!$association->users()->where('user_id', $user->id)->exists()) {
             $association->users()->attach($user);
         }
-        // Assign default role
-        $user->assignRole('user');
+        // Assign group_admin if the person created the association else assign user
+        if ($association->admin_user_id == $user->id) {
+            $user->assignRole('group_admin');
+        } else {
+            $user->assignRole('user');
+        }
         // Generate token for the user
         $token = $user->createToken($user->first_name . ' auth_token')->plainTextToken;
 
@@ -89,11 +94,12 @@ class AuthController extends Controller
 
 
 
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         $validated = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:6',
-                   ]);
+        ]);
         if ($validated->fails()) {
             return response()->json([
                 'message' => 'Validation failed',
@@ -122,7 +128,8 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request)
+    {
         $request->user()->tokens()->delete();
         return response()->json([
             'message' => 'User logged out successfully',
@@ -130,9 +137,44 @@ class AuthController extends Controller
     }
 
 
-    public function user(Request $request){
+    public function user(Request $request)
+    {
         return response()->json([
             'user' => $request->user(),
         ]);
+    }
+
+
+
+    public function assignAdmin(Request $request)
+
+    {
+        //use validator to validate the request
+    
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ],
+                422
+            );
+        }
+
+        $user = User::findOrFail($request->user_id);
+
+        // Assign the admin role
+        $user->syncRoles('admin'); 
+
+        return response()->json(
+            [
+                'message' => 'Admin role assigned successfully.',
+                'user' => $user,
+            ],
+            200
+        );
     }
 }

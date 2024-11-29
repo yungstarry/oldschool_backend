@@ -27,7 +27,8 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'terms_accepted_at',
-        'association_id'
+        'association_id',
+        'school_id',
         
     ];
 
